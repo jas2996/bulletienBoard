@@ -18,28 +18,27 @@
                 this.setState({editing: true})
             }, 
             save() {
-                var val = this.refs.newText.value
-                alert('Save later: ' + val)
+                this.props.onChange(this.refs.newText.value, this.props.id)
                 this.setState({editing: false})
             },
             remove() {
-                alert("Removing Note")
+                this.props.onRemove(this.props.id)
             }, 
             renderForm() {
                 return (
-                    <div className ="note">
-                        <textarea ref = "newText"></textarea>
-                        <button onClick={this.save}> SAVE</button>
+                    <div className="note">
+                      <textarea ref="newText"></textarea>
+                      <button onClick={this.save}>SAVE</button>
                     </div>
                 )
             },
-            renderDisplay(){
+            renderDisplay() {
                 return (
                     <div className="note">
                         <p>{this.props.children}</p>
                         <span>
-                            <button onClick={this.edit}>EDIT</button>
-                            <button onClick={this.remove}>REMOVE</button>
+                          <button onClick={this.edit}>EDIT</button>
+                          <button onClick={this.remove}>REMOVE</button>
                         </span>
                      </div>
                      )
@@ -63,24 +62,43 @@
                     }
                 }    
             },
-            getInitialState(){
+            getInitialState() {
                 return {
                     notes: [
-                        'Call Bob',
-                        'Second',
-                        'third',
-                        'fourth'
+                        {id: 0, note: 'Call Bob'},
+                        {id: 1, note: 'Second'},
+                        {id: 2, note: 'third'},
+                        {id: 3, note: 'fourth'}
                     ]
                 }
             },
-
+            update(newText, id) {
+                var notes = this.state.notes.map(
+                    note => (note.id !== id) ?
+                        note :
+                         {
+                            ...note,
+                            note: newText
+                         }
+                )
+                this.setState({notes})
+            },
+            remove(id) {
+                var notes = this.state.notes.filter(note => note.id !== id)
+                this.setState({notes})
+            },
+            eachNote(note) {
+                return (<Note key={note.id}
+                              id={note.id}
+                              onChange={this.update}
+                              onRemove={this.remove}>
+                          {note.note}
+                        </Note>)
+            },
             render() {
                 return (<div className='board'>
-                    {this.state.notes.map((note,i) => {
-                        return <Note key={i}>{note}</Note>
-
-                    })}
-                    </div>)
+                            {this.state.notes.map(this.eachNote)}
+                        </div>)
             }
         })
 
